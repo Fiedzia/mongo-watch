@@ -1,3 +1,15 @@
+/*
+    Mongo-watch:  simple mongo monitoring utility
+
+    Usage:
+        define queries or commands in config.js and run mongo-watch.js.
+        you will see query results on screeni
+
+    Requirements:
+        mongo instance
+        node-mongo-native node.js mongo driver
+
+*/
 var util = require('util'),
 fs = require('fs'),
 config = require('./config.js').CONFIG;
@@ -7,6 +19,7 @@ Connection = require('mongodb').Connection,
 Server = require('mongodb').Server,
 BSON = require('mongodb').BSONNative;
 
+//print query/command result
 var handleResult = function(name, err, data) {
     if(err) {
         util.print(name + ": error: " + JSON.stringify(error) + "\n");
@@ -15,9 +28,8 @@ var handleResult = function(name, err, data) {
     }
 }
 
-
+//perform check
 var handleCheck = function(server, dbconn, check) {
-    util.print("type: " + check.type + "\n");
     if(check.type == "command") {
         setInterval(function() {
             dbconn.executeDbCommand(check.command,  function(err, data) {
@@ -39,7 +51,7 @@ var handleCheck = function(server, dbconn, check) {
     };
 };
 
-
+//open database connection
 var handleConn = function(server, connection, db){
     connection.open(function(err, dbconn) {
         for(check_iterator in db.checks) {
@@ -50,7 +62,7 @@ var handleConn = function(server, connection, db){
     
 };
 
-
+//read check list from config
 for(hostname in config.hosts) {
     var host = config.hosts[hostname];
     for(dbname in host.databases) {
